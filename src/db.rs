@@ -1,4 +1,5 @@
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
+use std::path::Path;
 
 use crate::error::AppError;
 use crate::models::UrlRecord;
@@ -7,9 +8,50 @@ pub type DbPool = Pool<Sqlite>;
 
 
 pub async fn init_db(database_url: &str) -> Result<DbPool, AppError> {
+   
+    if let Some(path) = database_url.strip_prefix("sqlite://") {
+        
+        if path != ":memory:" {
+            let db_path = Path::new(path);
+
+           
+            if let Some(parent) = db_path.parent() {
+                if !parent.as_os_str().is_empty() && !parent.exists() {
+                    std::fs::create_dir_all(parent).map_err(|e| {
+                        AppError::DatabaseError(format!(
+                            "Failed to create database directory '{}': {}",
+                            parent.display(),
+                            e
+                        ))
+                    })?;
+                    tracing::info!("Created database directory: {}", parent.display());
+                }
+            }
+
+           
+            if !db_path.exists() {
+                std::fs::File::create(db_path).map_err(|e| {
+                    AppError::DatabaseError(format!(
+                        "Failed to create database file '{}': {}",
+                        db_path.display(),
+                        e
+                    ))
+                })?;
+                tracing::info!("Created database file: {}", db_path.display());
+            }
+        }
+    }
+
+   
+    let connect_url = if database_url.contains("?") {
+        format!("{}&create=true", database_url)
+    } else {
+        format!("{}?mode=rwc", database_url)
+    };
+
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
-        .connect(database_url)
+        .connect(&connect_url)
         .await
         .map_err(|e| AppError::DatabaseError(format!("Failed to connect: {}", e)))?;
 
