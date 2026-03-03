@@ -5,10 +5,23 @@ use axum::{
 };
 
 use crate::error::AppError;
-use crate::models::UrlStats;
+use crate::models::{ErrorBody, UrlStats};
 use crate::services;
 use crate::AppState;
 
+
+#[utoipa::path(
+    get,
+    path = "/api/stats/{code}",
+    tag = "Statistics",
+    params(
+        ("code" = String, Path, description = "The short code to get stats for")
+    ),
+    responses(
+        (status = 200, description = "URL statistics", body = UrlStats),
+        (status = 404, description = "Short code not found", body = ErrorBody)
+    )
+)]
 pub async fn get_stats(
     State(state): State<AppState>,
     Path(code): Path<String>,
@@ -20,6 +33,20 @@ pub async fn get_stats(
     Ok(Json(stats))
 }
 
+
+
+#[utoipa::path(
+    delete,
+    path = "/api/urls/{code}",
+    tag = "URLs",
+    params(
+        ("code" = String, Path, description = "The short code to delete")
+    ),
+    responses(
+        (status = 204, description = "URL deleted successfully"),
+        (status = 404, description = "Short code not found", body = ErrorBody)
+    )
+)]
 pub async fn delete_url(
     State(state): State<AppState>,
     Path(code): Path<String>,

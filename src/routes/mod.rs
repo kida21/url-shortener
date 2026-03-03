@@ -6,4 +6,4 @@ pub mod stats;
 pub use health::health_check;
 pub use redirect::redirect_to_url;
 pub use shorten::shorten_url;
-pub use stats::{get_stats, delete_url};
+pub use stats::{delete_url, get_stats};
