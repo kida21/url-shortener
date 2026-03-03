@@ -3,6 +3,7 @@ pub mod db;
 pub mod error;
 pub mod middleware;
 pub mod models;
+pub mod openapi;
 pub mod router;
 pub mod routes;
 pub mod services;

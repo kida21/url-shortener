@@ -18,7 +18,8 @@ url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
 tower = { version = "0.5.3", features = ["limit", "buffer"] }
 utoipa = { version = "5", features = ["axum_extras"] }
-utoipa-swagger-ui = { version = "8", features = ["axum"] }
+utoipa-axum = "0.2"
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
 
 [dev-dependencies]
 http-body-util = "0.1.3"
