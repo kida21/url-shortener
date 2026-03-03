@@ -1,0 +1,25 @@
+services:
+  url-shortener:
+    build: .
+    container_name: url-shortener
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - BASE_URL=${BASE_URL}
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - url-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-3000}/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  url-data:
+    driver: local
